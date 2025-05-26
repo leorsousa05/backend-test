@@ -4,18 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
-class ProductController
+class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::paginate(10);
-        return view('products.index', compact('products'));
-    }
-
-    public function create()
-    {
-        return view('products.create');
+        return response()->json(Product::paginate(10));
     }
 
     public function store(Request $request)
@@ -29,20 +24,17 @@ class ProductController
             'active'      => 'boolean',
         ]);
 
-        Product::create($data);
+        $product = Product::create($data);
 
-        return redirect()->route('products.index')
-                         ->with('success', 'Produto criado com sucesso!');
+        return response()->json([
+            'message' => 'Produto criado com sucesso',
+            'data'    => $product
+        ], 201);
     }
 
     public function show(Product $product)
     {
-        return view('products.show', compact('product'));
-    }
-
-    public function edit(Product $product)
-    {
-        return view('products.edit', compact('product'));
+        return response()->json($product);
     }
 
     public function update(Request $request, Product $product)
@@ -58,16 +50,19 @@ class ProductController
 
         $product->update($data);
 
-        return redirect()->route('products.index')
-                         ->with('success', 'Produto atualizado com sucesso!');
+        return response()->json([
+            'message' => 'Produto atualizado com sucesso',
+            'data'    => $product
+        ]);
     }
 
     public function destroy(Product $product)
     {
         $product->delete();
 
-        return redirect()->route('products.index')
-                         ->with('success', 'Produto excluído com sucesso!');
+        return response()->json([
+            'message' => 'Produto excluído com sucesso'
+        ]);
     }
 }
 

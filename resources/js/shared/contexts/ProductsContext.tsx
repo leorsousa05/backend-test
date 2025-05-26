@@ -1,12 +1,6 @@
-
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useAuth } from "./AuthContext";
+import { toast } from "react-toastify";
 
 export interface Product {
   id: number;
@@ -25,117 +19,134 @@ interface ProductContextData {
   loading: boolean;
   error: string | null;
   getProducts: () => Promise<void>;
-  getProduct: (id: number) => Promise<Product>;
-  createProduct: (data: Omit<Partial<Product>, "id" | "created_at" | "updated_at">) => Promise<Product>;
-  updateProduct: (id: number, data: Partial<Product>) => Promise<Product>;
+  getProduct: (id: number) => Promise<Product | null>;
+  createProduct: (data: Omit<Partial<Product>, "id" | "created_at" | "updated_at">) => Promise<Product | null>;
+  updateProduct: (id: number, data: Partial<Product>) => Promise<Product | null>;
   deleteProduct: (id: number) => Promise<void>;
 }
 
-const ProductContext = createContext<ProductContextData>({
-  products: [],
-  loading: false,
-  error: null,
-  getProducts: async () => {},
-  getProduct: async () => {
-    throw new Error("getProduct não implementado");
-  },
-  createProduct: async () => {
-    throw new Error("createProduct não implementado");
-  },
-  updateProduct: async () => {
-    throw new Error("updateProduct não implementado");
-  },
-  deleteProduct: async () => {},
-});
+const ProductContext = createContext<ProductContextData>({} as any);
 
-export const ProductProvider: React.FC<{ children: ReactNode }> = ({
-  children,
-}) => {
+export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { token } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const API = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 
-  const apiHeaders = () => ({
+  const headers = {
     "Content-Type": "application/json",
     Authorization: token ? `Bearer ${token}` : "",
-  });
+  };
 
   const getProducts = async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/v1/products", {
-        headers: apiHeaders(),
-      });
+      const res = await fetch(`${API}/products`, { headers });
       if (!res.ok) throw new Error("Falha ao carregar produtos");
-      const data: Product[] = await res.json();
-      setProducts(data);
+      const json = await res.json();
+      setProducts(json.data);
     } catch (err: any) {
       setError(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const getProduct = async (id: number) => {
+  const getProduct = async (id: number): Promise<Product | null> => {
     setError(null);
-    const res = await fetch(`/api/v1/products/${id}`, {
-      headers: apiHeaders(),
-    });
-    if (!res.ok) throw new Error("Produto não encontrado");
-    const data: Product = await res.json();
-    return data;
+    try {
+      const res = await fetch(`${API}/products/${id}`, { headers });
+      if (!res.ok) {
+        toast.error(`Erro ao buscar produto #${id}`);
+        return null;
+      }
+      const json = await res.json();
+      return json as Product;
+    } catch {
+      toast.error("Erro de conexão. Tente novamente.");
+      return null;
+    }
   };
 
-  const createProduct = async (data: Omit<Partial<Product>, "id" | "created_at" | "updated_at">) => {
+  const createProduct = async (
+    data: Omit<Partial<Product>, "id" | "created_at" | "updated_at">
+  ): Promise<Product | null> => {
     setError(null);
-    const res = await fetch("/api/v1/products", {
-      method: "POST",
-      headers: apiHeaders(),
-      body: JSON.stringify(data),
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.message || "Erro ao criar produto");
-    setProducts((prev) => [json as Product, ...prev]);
-    return json as Product;
+    try {
+      const res = await fetch(`${API}/products`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        const msg = json.errors
+          ? Object.values(json.errors).flat()[0]
+          : json.message || "Erro ao criar produto";
+        toast.error(msg);
+        return null;
+      }
+      setProducts(prev => [json as Product, ...prev]);
+      toast.success("Produto criado com sucesso");
+      return json as Product;
+    } catch {
+      toast.error("Erro de conexão. Tente novamente.");
+      return null;
+    }
   };
 
-  const updateProduct = async (id: number, data: Partial<Product>) => {
+  const updateProduct = async (
+    id: number,
+    data: Partial<Product>
+  ): Promise<Product | null> => {
     setError(null);
-    const res = await fetch(`/api/v1/products/${id}`, {
-      method: "PUT",
-      headers: apiHeaders(),
-      body: JSON.stringify(data),
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.message || "Erro ao atualizar produto");
-    setProducts((prev) =>
-      prev.map((p) => (p.id === id ? (json as Product) : p))
-    );
-    return json as Product;
+    try {
+      const res = await fetch(`${API}/products/${id}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        const msg = json.errors
+          ? Object.values(json.errors).flat()[0]
+          : json.message || "Erro ao atualizar produto";
+        toast.error(msg);
+        return null;
+      }
+      setProducts(prev => prev.map(p => (p.id === id ? (json as Product) : p)));
+      toast.success("Produto atualizado com sucesso");
+      return json as Product;
+    } catch {
+      toast.error("Erro de conexão. Tente novamente.");
+      return null;
+    }
   };
 
   const deleteProduct = async (id: number) => {
     setError(null);
-    const res = await fetch(`/api/v1/products/${id}`, {
-      method: "DELETE",
-      headers: apiHeaders(),
-    });
-    if (!res.ok) {
-      const json = await res.json();
-      throw new Error(json.message || "Erro ao excluir produto");
+    try {
+      const res = await fetch(`${API}/products/${id}`, {
+        method: "DELETE",
+        headers,
+      });
+      if (!res.ok) {
+        const json = await res.json();
+        toast.error(json.message || "Erro ao excluir produto");
+        return;
+      }
+      setProducts(prev => prev.filter(p => p.id !== id));
+      toast.success("Produto excluído com sucesso");
+    } catch {
+      toast.error("Erro de conexão. Tente novamente.");
     }
-    setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
-
   useEffect(() => {
-    if (token) {
-      getProducts();
-    } else {
-      setProducts([]);
-    }
+    token ? getProducts() : setProducts([]);
   }, [token]);
 
   return (

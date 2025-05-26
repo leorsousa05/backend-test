@@ -72,7 +72,7 @@ Base URL: `http://localhost:8000/api`
 ## Acesso ao CMS (Administração)
 
 1. Abra o navegador em `http://localhost:8000/login`.
-2. Faça login com credenciais cadastradas no seeder (por exemplo: `admin@example.com` / `password`).
+2. Faça login com credenciais cadastradas no seeder (`admin@example.com` / `admin`).
 3. Após autenticar, você terá acesso ao menu lateral para:
    - **Dashboard**: estatísticas dos produtos
    - **Produtos**: criar, editar, excluir e visualizar
@@ -109,5 +109,5 @@ Base URL: `http://localhost:8000/api`
 
 ---
 
-_Dump do banco de dados disponível em `bd.sql`_
+_Dump do banco de dados disponível em `dump.sql`_
 

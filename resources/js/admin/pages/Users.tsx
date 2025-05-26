@@ -76,7 +76,7 @@ export const Users: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6 text-gray-800">
+    <div className="bg-gray-50 p-6 text-gray-800">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
         <h2 className="text-2xl font-bold mb-4 md:mb-0">Usuários</h2>
         <div className="flex gap-3">

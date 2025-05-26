@@ -32,7 +32,7 @@ export const ProductProvider: React.FC<{ children: ReactNode }> = ({ children })
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const API = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+  const API = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
 
   const headers = {
     "Content-Type": "application/json",

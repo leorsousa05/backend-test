@@ -17,6 +17,7 @@ import { ProductEdit } from "./products/pages/ProductEdit";
 import { ProductShow } from "./products/pages/ProductShow";
 import { ProductCreate } from "./products/pages/ProductCreate";
 import { Dashboard } from "./dashboard/pages/Dashboard";
+import { StorePage } from "./store/pages/StorePage";
 
 interface ProtectedRouteProps {
   children: JSX.Element;
@@ -48,7 +49,8 @@ export const App = () => {
     <Router>
       <ToastContainer />
       <Routes>
-        <Route index element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route index element={<ProductProvider><StorePage /></ProductProvider>} />
         <Route
           path="/dashboard"
           element={<ProtectedRoute>{Layout(<Dashboard />)}</ProtectedRoute>}
@@ -73,6 +75,7 @@ export const App = () => {
             <ProtectedRoute>{Layout(<Products />)}</ProtectedRoute>
           }
         />
+        <Route path="/store" element={Layout(<StorePage />)} />
         <Route
           path="/products/create"
           element={

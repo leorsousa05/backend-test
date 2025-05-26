@@ -1,6 +1,7 @@
-import React from 'react';
-import { Icon } from '@iconify/react';
-import { User } from './UserForm';
+// UserTable.tsx
+import React from "react";
+import { Icon } from "@iconify/react";
+import { User } from "./UserForm";
 
 interface UserTableProps {
   users: User[];
@@ -8,39 +9,35 @@ interface UserTableProps {
   onDelete: (id: string) => void;
 }
 
-export const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => {
-  return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-[#24242a] border border-[#24242a] table-auto">
-        <thead className="bg-[#16161a] text-[#fffffe]">
-          <tr>
-            <th className="py-2 px-4 border-b border-[#24242a] text-left">Nome</th>
-            <th className="py-2 px-4 border-b border-[#24242a] text-left">Email</th>
-            <th className="py-2 px-4 border-b border-[#24242a] text-left">Função</th>
-            <th className="py-2 px-4 border-b border-[#24242a] text-center">Ações</th>
+export const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onDelete }) => (
+  <div className="overflow-x-auto bg-white rounded-lg shadow">
+    <table className="min-w-full divide-y divide-gray-200">
+      <thead className="bg-gray-100 text-gray-700">
+        <tr>
+          <th className="px-4 py-2 text-left">Nome</th>
+          <th className="px-4 py-2 text-left">Email</th>
+          <th className="px-4 py-2 text-left">Função</th>
+          <th className="px-4 py-2 text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-200">
+        {users.map(u => (
+          <tr key={u.id} className="hover:bg-gray-50">
+            <td className="px-4 py-3">{u.name}</td>
+            <td className="px-4 py-3 text-gray-600">{u.email}</td>
+            <td className="px-4 py-3 text-gray-600">{u.role === "admin" ? "Admin" : "Client"}</td>
+            <td className="px-4 py-3 text-center space-x-4">
+              <button onClick={() => onEdit(u)} className="text-blue-600 hover:text-blue-800">
+                <Icon icon="mdi:pencil" className="w-5 h-5" />
+              </button>
+              <button onClick={() => onDelete(u.id)} className="text-red-600 hover:text-red-800">
+                <Icon icon="mdi:delete" className="w-5 h-5" />
+              </button>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id} className="hover:bg-[#16161a]">
-              <td className="py-2 px-4 border-b border-[#24242a] text-left text-[#fffffe]">{user.name}</td>
-              <td className="py-2 px-4 border-b border-[#24242a] text-left text-[#94a1b2]">{user.email}</td>
-              <td className="py-2 px-4 border-b border-[#24242a] text-left text-[#94a1b2]">
-                {user.role === 'admin' ? 'Admin' : 'Client'}
-              </td>
-              <td className="py-2 px-4 border-b border-[#24242a] text-center">
-                <button onClick={() => onEdit(user)} className="text-[#7f5af0] hover:text-[#fffffe] mr-2">
-                  <Icon icon="mdi:pencil" className="w-5 h-5" />
-                </button>
-                <button onClick={() => onDelete(user.id)} className="text-[#7f5af0] hover:text-[#fffffe]">
-                  <Icon icon="mdi:delete" className="w-5 h-5" />
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
 

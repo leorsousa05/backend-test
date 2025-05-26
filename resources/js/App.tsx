@@ -12,6 +12,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { JSX } from "react";
 import { ProductProvider } from "./shared/contexts/ProductsContext";
+import { Dashboard } from "./dashboard/pages/Dashboard";
 
 interface ProtectedRouteProps {
     children: JSX.Element;
@@ -41,6 +42,7 @@ export const App = () => {
                                     <Sidebar />
                                     <div className="flex-1">
                                         <Navbar />
+                                        <Dashboard />
                                     </div>
                                 </div>
                             </ProductProvider>

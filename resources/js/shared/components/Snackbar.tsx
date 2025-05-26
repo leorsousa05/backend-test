@@ -1,4 +1,3 @@
-// src/components/shared/Snackbar.tsx
 import React from 'react';
 import { Icon } from '@iconify/react';
 
